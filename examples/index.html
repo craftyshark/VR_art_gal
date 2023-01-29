@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Persistent Sphere Example — Networked-Aframe</title>
+    <meta name="description" content="Persistent Sphere Example — Networked-Aframe" />
+
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.5.0/socket.io.slim.js"></script>
+    <script src="/easyrtc/easyrtc.js"></script>
+    <script src="/dist/networked-aframe.js"></script>
+    <script>
+      // see issue https://github.com/networked-aframe/networked-aframe/issues/267
+      NAF.schemas.getComponentsOriginal = NAF.schemas.getComponents;
+      NAF.schemas.getComponents = (template) => {
+        if (!NAF.schemas.hasTemplate('#avatar-template')) {
+          NAF.schemas.add({
+            template: '#avatar-template',
+            components: [
+              'position',
+              'rotation',
+              {
+                selector: '.head',
+                component: 'material',
+                property: 'color'
+              }
+            ]
+          });
+        }
+        if (!NAF.schemas.hasTemplate('#sphere-template')) {
+          NAF.schemas.add({
+            template: '#sphere-template',
+            components: [
+              'position',
+              {
+                component: 'material',
+                property: 'color'
+              }
+            ]
+          });
+        }
+        const components = NAF.schemas.getComponentsOriginal(template);
+        return components;
+      };
+    </script>
+
+    <script src="https://unpkg.com/aframe-randomizer-components@^3.0.1/dist/aframe-randomizer-components.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.3.1/dist/aframe-environment-component.min.js"></script>
+    <script src="/js/spawn-in-circle.component.js"></script>
+    <script src="/js/color-changer.component.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+  </head>
+  <body>
+    <a-scene
+      cursor="rayOrigin: mouse"
+      raycaster="objects:.raycastable"
+      networked-scene="
+        room: basic-persistent;
+        debug: true;
+        adapter: wseasyrtc"
+    >
+      <a-assets>
+        <!-- Templates -->
+        <template id="sphere-template">
+          <a-entity class="raycastable" geometry="primitive: sphere" material="color: red" color-changer></a-entity>
+        </template>
+
+        <!-- Avatar -->
+        <template id="avatar-template">
+          <a-entity class="avatar">
+            <a-sphere class="head" scale="0.45 0.5 0.4"></a-sphere>
+            <a-entity class="face" position="0 0.05 0">
+              <a-sphere class="eye" color="#efefef" position="0.16 0.1 -0.35" scale="0.12 0.12 0.12">
+                <a-sphere class="pupil" color="#000" position="0 0 -1" scale="0.2 0.2 0.2"></a-sphere>
+              </a-sphere>
+              <a-sphere class="eye" color="#efefef" position="-0.16 0.1 -0.35" scale="0.12 0.12 0.12">
+                <a-sphere class="pupil" color="#000" position="0 0 -1" scale="0.2 0.2 0.2"></a-sphere>
+              </a-sphere>
+            </a-entity>
+          </a-entity>
+        </template>
+
+        <!-- I will load in Emily's art for textures right here -->
+
+        <img id="emily_crab_1" src="img/emily_crab_1.jpg" />
+        <img id="emily_crab_2" src="img/emily_crab_2.jpg" />
+        <img id="emily_crab_3" src="img/emily_crab_3.jpg" />
+
+        <img id="emily_demon_1" src="img/emily_demon_1.jpg" />
+
+        <img id="bees1" src="img/bees1.jpg" />
+        <img id="bees2" src="img/bees2.jpg" />
+        <img id="bees3" src="img/bees3.jpg" />
+
+        <img id="copy_right" src="img/copy_right.jpg" />
+
+
+
+
+
+        <!-- /Templates -->
+      </a-assets>
+
+      <a-entity id="rig">
+        <a-entity
+          id="player"
+          networked="template:#avatar-template;attachTemplateToLocal:false;"
+          camera
+          position="0 1.6 0"
+          spawn-in-circle="radius:3"
+          wasd-controls="acceleration: 35"
+          look-controls
+        >
+          <a-sphere class="head" visible="false" random-color></a-sphere>
+        </a-entity>
+      </a-entity>
+
+      <!-- walls for our art building -->
+      
+      <!-- back wall -->
+      <a-box id="back_wall" position="-1.560 1.9 5.2" rotation="0 0 0" width="10" height="4" depth="0.1" color="#355273"></a-box>
+
+      <!-- left wall -->
+      <a-box id="left_wall" position="-5.239 1.335 -0.656" rotation="0 90 0" width="4.8" height="3" depth="0.1" color="#00A60D"></a-box>
+
+      <!-- right wall -->
+      <a-box id="right_wall" position="6.672 1.9 2.752" rotation="0 -90 0" width="14" height="4" depth="0.1" color="#355273"></a-box>
+
+      <!-- behind art wall -->
+      <a-box id="back_crabs" position="0.642 2.3 -3.1" rotation="-90 0 0" width="11.9" height="0.1" depth="5" color="#00A60D"></a-box>
+
+      <!-- <a-entity
+        id="sphere"
+        networked="template:#sphere-template;networkId:sphere;persistent:true;owner:scene"
+      ></a-entity> -->
+      <!--
+        Specifying a owner that isn't a real participant is used so that the
+        participant joining the room won't send this entity because not the
+        current owner, otherwise the participant will send the default red
+        color to the other participants, overriding the color
+        defined by the current owner of the sphere in the room.
+      -->
+
+      <a-plane src="#emily_crab_1" rotation="0 0 0" width="2" height="2" position="0 1.71 -2.8"></a-plane>
+      <a-entity light="type: point; intensity: 0.2; position: 0 2 -1"></a-entity>
+
+      <!-- I want to place the next three planes next to each other along the same x axis but with 1 meter of space 
+      seperating them -->
+
+      <a-plane src="#emily_crab_2" rotation="0 0 0" width="2" height="2" position="3 1.71 -2.8"></a-plane>
+      <a-entity light="type: point; intensity: 0.2; position: 3 2 -1"></a-entity>
+
+      <a-plane src="#emily_crab_3" rotation="0 0 0" width="2" height="2" position="-3 1.71 -2.8"></a-plane>
+      <a-entity light="type: point; intensity: 0.2; position: -3 2 -1"></a-entity>
+
+      <!-- I think I want to put the demon in front of the back wall -->
+      <!-- I also want it to have it's own light source and it will need to be flipped 180 degrees of the other planes currently in the scene -->
+      
+      <a-plane src="#emily_demon_1" rotation="0 180 0" width="2" height="2" position="0.5 1.71 5.103"></a-plane>
+      <a-entity light="type: point; intensity: 0.2; position: 0.5 2 6.103"></a-entity>
+
+      <!-- I want to put the copyright image 0.1 meters off the left wall -->
+      <!-- I also want it to have it's own light source and it will need to be flipped 90 degrees of the other planes currently in the scene -->
+      
+      <a-plane id="copy_right" src="#copy_right" rotation="0 90 0" width="3.8" height="2" position="-5.039 1.71 -0.458"></a-plane>
+      <a-entity light="type: point; intensity: 0.2; position: -5.239 2 1.656"></a-entity>
+      
+      <!-- I want to put the three bees images on the right wall , fliped 180 degrees of the copyright image -->
+      <!-- I also want 2 meters of space in the z direction between the edges of each plane -->
+
+      <a-plane id="bee1" src="#bees1" rotation="0 -90 0" width="2" height="2" position="6.5 1.71 4.318"></a-plane>
+      <a-entity light="type: point; intensity: 0.2; position: 6.672 2 4.752"></a-entity>
+
+      <a-plane src="#bees2" rotation="0 -90 0" width="2" height="2" position="6.5 1.71 1.432"></a-plane>
+      <a-entity light="type: point; intensity: 0.2; position: 6.672 2 2"></a-entity>
+
+      <a-plane src="#bees3" rotation="0 -90 0" width="2" height="2" position="6.5 1.71 -1.432"></a-plane>
+      
+
+      
+
+
+      
+      <a-entity environment="preset:forest"></a-entity>
+      <!-- <a-entity light="type:distant;intensity:0.2"></a-entity> -->
+    </a-scene>
+
+    <!-- <div class="controls">
+      <p>
+        Click on the sphere to change its color. The color is shared between the participants. The sphere won't be
+        removed if the current owner (the latest participant that clicked on the sphere) leaves the room.
+      </p>
+    </div> -->
+
+    <script>
+      // Called by Networked-Aframe when connected to server
+      function onConnect() {
+        console.log('onConnect', new Date());
+      }
+    </script>
+  </body>
+</html>

@@ -1,3 +1,5 @@
 # VR_art_gal
 
-I decided to make a little VR Art Gallary for a very special artist. 
+A Simple VR Art Gallery
+
+A work in progress 

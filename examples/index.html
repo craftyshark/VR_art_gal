@@ -2,8 +2,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Persistent Sphere Example — Networked-Aframe</title>
-    <meta name="description" content="Persistent Sphere Example — Networked-Aframe" />
+    <title>VR Art Gallary</title>
+    <meta name="description" content="VR Art Gallary" />
 
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.5.0/socket.io.slim.js"></script>
@@ -94,6 +94,10 @@
 
         <img id="copy_right" src="img/copy_right.jpg" />
 
+        <!-- "Chrysanthemum green" (https://skfb.ly/6yALW) by Asia Matusik is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/). -->
+        <a-asset-item id="flower" src="/examples/assets/chrysanthemum-green/source/chryzantema/chryzantema.obj"></a-asset-item>
+
+
 
 
 
@@ -175,6 +179,10 @@
       <a-entity light="type: point; intensity: 0.2; position: 6.672 2 2"></a-entity>
 
       <a-plane src="#bees3" rotation="0 -90 0" width="2" height="2" position="6.5 1.71 -1.432"></a-plane>
+
+      <!-- I want to place the flower in the middle of all the walls  -->
+
+      <a-entity id="flower" position="0 1.71 2.5" rotation="0 0 0" scale="0.5 0.5 0.5" obj-model="obj: #flower"></a-entity>
       
 
       
